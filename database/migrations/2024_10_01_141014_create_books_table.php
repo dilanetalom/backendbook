@@ -18,14 +18,16 @@ return new class extends Migration
             $table->string('category')->nullable();
             $table->string('language')->nullable();
             $table->string('image');
-            $table->string('format')->nullable();
+            $table->string('status')->nullable();
             $table->string('niveau')->nullable();
             $table->date('pub_date');
-            $table->unsignedBigInteger('price');
+            $table->unsignedBigInteger('price_n');
+            $table->unsignedBigInteger('price_p');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('author_id');
             $table->foreign('author_id')->references('id')->on('authors');
+            $table->softDeletes(); 
             $table->timestamps();
         });
     }

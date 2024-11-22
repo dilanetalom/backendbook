@@ -6,6 +6,7 @@ use App\Models\Author;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 use Exception;
 
 class BookController extends Controller
@@ -16,12 +17,14 @@ class BookController extends Controller
     public function index()
     {
         try {
-             // Récupérer tous les livres 
-        $book = Book::all();
-
-        // Retourner les livres  en JSON
-        return response()->json($book);
-
+           
+            // Tenter de récupérer les livres depuis le cache
+            $books = Book::get(); // Récupérer les livres 
+           
+    
+            // Retourner les livres en JSON
+            return response()->json($books);
+    
         } catch (Exception $e) {
             // Retourner une réponse JSON avec le message d'erreur
             return response()->json([
@@ -50,13 +53,15 @@ class BookController extends Controller
             'description'=> 'required|string|max:255',
             'category'=> 'required|string|max:255',
             'language'=> 'string|max:255',          
-            'format'=> 'string|max:255',
+            'status'=> 'string|max:255',
             'niveau'=> 'string|max:255',
             'pub_date'=> 'required|string|max:255',
-            'price'=> 'required|string|max:255',
+            'price_n'=> 'required|string|max:255',
+            'price_p'=> 'required|string|max:255',
             'user_id'=> 'required|string|max:255',
             'name'=> 'required|string|max:255',
             'gender'=> 'required|string|max:255',
+            'author_id'=> 'required|integer',
             'country'=> 'required|string|max:255',
         ]);
 
@@ -68,17 +73,17 @@ class BookController extends Controller
 
             // enregistrer un auteur 
 
-        if ($request->name && $request->gender) {
-            $images = $request->file('imageauthor');
-            $imageauthors = time() . '_' . $images->getClientOriginalName();
-            $images->move(public_path('images/author'), $imageauthors);
-            $author = Author::create([
-                'name'=> $request->name,
-                'gender'=> $request->gender,
-                'country'=> $request->country,
-                'image'=> 'images/books/' . $imageauthors,
-            ]);
-        }
+        // if ($request->name && $request->gender) {
+        //     $images = $request->file('imageauthor');
+        //     $imageauthors = time() . '_' . $images->getClientOriginalName();
+        //     $images->move(public_path('images/author'), $imageauthors);
+        //     $author = Author::create([
+        //         'name'=> $request->name,
+        //         'gender'=> $request->gender,
+        //         'country'=> $request->country,
+        //         'image'=> 'images/books/' . $imageauthors,
+        //     ]);
+        // }
     
              // Gérer l'upload de l'image
         if ($request->hasFile('image')) {
@@ -93,12 +98,12 @@ class BookController extends Controller
                 'category' => $request->category,
                 'language' => $request->language,
                 'image' => 'images/books/' . $imageName, // Chemin de l'image enregistré
-                'format' => $request->format,
+                'status' => $request->status,
                 'niveau' => $request->niveau,
                 'pub_date' => $request->pub_date,
                 'price' => $request->price,
                 'user_id' => $request->user_id,
-                'author_id' => $author->id, // Vous avez déjà l'auteur ici
+                'author_id' => $request->author_id, // Vous avez déjà l'auteur ici
             ]);
 
             return response()->json(['message' => 'Book created successfully', 'book' => $book], 201);
@@ -171,7 +176,7 @@ class BookController extends Controller
             'description' => 'string',
             'category' => 'string',
             'language' => 'string',
-            'format' => 'string',
+            'stau=tus' => 'string',
             'niveau' => 'string',
             'pub_date' => 'date',
             'price' => 'numeric',
@@ -185,23 +190,23 @@ class BookController extends Controller
         $book = Book::findOrFail($id);
         $author = Author::findOrFail($book->author_id);
      
-        if ($request->hasFile('imageauthor')) {
-            $images = $request->file('imageauthor');
-            $imageauthor = time() . '_' . $images->getClientOriginalName();
-            $images->move(public_path('images/author'), $imageauthor);
+        // if ($request->hasFile('imageauthor')) {
+        //     $images = $request->file('imageauthor');
+        //     $imageauthor = time() . '_' . $images->getClientOriginalName();
+        //     $images->move(public_path('images/author'), $imageauthor);
 
-            // Supprimer l'ancienne image si elle existe
-            if ($author->imageauthor) {
-                $oldImagePath = public_path($author->imageauthor);
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
-                }
-            }
+          
+        //     if ($author->imageauthor) {
+        //         $oldImagePath = public_path($author->imageauthor);
+        //         if (file_exists($oldImagePath)) {
+        //             unlink($oldImagePath);
+        //         }
+        //     }
 
-            // Mettre à jour le chemin de la nouvelle image        
-            $author->imageauthor = 'images/author/' . $imageauthor;          
+                 
+        //     $author->imageauthor = 'images/author/' . $imageauthor;          
        
-        }
+        // }
 
       if ($request->name && $request->gende) {
         $author->name= $request->name;
@@ -233,7 +238,7 @@ class BookController extends Controller
         $book->description = $request->description;
         $book->category = $request->category;
         $book->language = $request->language;
-        $book->format = $request->format;
+        $book->status = $request->status;
         $book->niveau = $request->niveau;
         $book->pub_date = $request->pub_date;
         $book->price = $request->price;

@@ -6,19 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
-class Event extends Model
+class SaleBook extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
-    protected $fillable = [
-       'name',
-       'description',
-       'eventdate',
-       'image',
-       'user_id',
+    protected $fillable =[
+        'quantity',
+        'total_price',
+        'type_book',
+        'book_id',
+        'sale_id',
     ];
 
     protected $dates = ['deleted_at'];
-    // MyApp Personal Access Client
+
+
 }

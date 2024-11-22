@@ -22,6 +22,7 @@ use App\Http\Controllers\NewsController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::get('getbook', [BookController::class, 'index']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -30,7 +31,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('allusers', [AuthController::class, 'allusers']);
 
     // Routes pour la gestion des livres
-    Route::get('getbook', [BookController::class, 'index']);
+    
     Route::post('savebook', [BookController::class, 'store']);
     Route::get('getbybook/{id}', [BookController::class, 'show']);
     Route::put('updatebook/{id}', [BookController::class, 'update']);
